@@ -22,12 +22,13 @@ p {
 }
 
 h1 {
-  font: 400 6rem/1 'Averia Serif Libre', Georgia, serif;
+  font: 400 2.5rem/1 'Averia Serif Libre', Georgia, serif;
   letter-spacing: -0.05em;
 }
 
 h2 {
-  font-size: 3rem;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
@@ -54,7 +55,7 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 2rem;
+  padding: 1rem;
 }
 section {
   min-height: 65vh;
@@ -106,7 +107,7 @@ svg {
   background: url(https://picsum.photos/960/540) no-repeat center / cover;
   border-radius: 1rem;
   overflow: hidden;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 177.78%; /* 9:16 aspect ratio */
   position: relative;
   width: 100%;
 }
@@ -131,4 +132,27 @@ svg {
 .scene-hue {
   background: var(--color-text);
   mix-blend-mode: color;
+}
+
+/* responsive */
+
+@media (min-width: 1024px) {
+  /* desktop: */
+
+  h1 {
+    font-size: 6rem;
+  }
+  h2 {
+    font-size: 2rem;
+  }
+
+  header,
+  section,
+  footer {
+    padding: 2rem;
+  }
+
+  .scene {
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  }
 }
