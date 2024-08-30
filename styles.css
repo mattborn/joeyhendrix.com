@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Averia+Serif+Libre&family=DM+Sans&display=swap');
+
+/* colors */
+
+:root {
+  --color-background: #f2eed9;
+  --color-text: #522;
+}
+
+/* typography */
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font: 100%/1 'DM Sans', system-ui, sans-serif;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font: 400 6rem/1 'Averia Serif Libre', Georgia, serif;
+  letter-spacing: -0.05em;
+}
+
+h2 {
+  font-size: 3rem;
+  line-height: 1.1;
+}
+
+p {
+  line-height: 1.5;
+  max-width: 30rem;
+}
+
+.copy-2024 {
+  font-size: 1.25rem;
+}
+
+/* layout */
+
+body {
+  margin: 0;
+  text-align: center;
+}
+
+header,
+section,
+footer {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+}
+section {
+  min-height: 65vh;
+}
+
+.center {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+  max-width: 75rem;
+  width: 100%;
+}
+
+/* branding */
+
+svg {
+  fill: var(--color-text);
+}
+
+/* components */
+
+.button {
+  background: var(--color-text);
+  border-radius: 1.5rem;
+  color: var(--color-background);
+  cursor: pointer;
+  padding: 1rem 1.5rem;
+}
+
+/* services */
+
+.service-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+.service-item {
+  border: 1px solid var(--color-text);
+  border-radius: 1.5rem;
+  padding: 1rem 1.5rem;
+}
+
+/* scene */
+
+.scene {
+  background: url(https://picsum.photos/960/540) no-repeat center / cover;
+  border-radius: 1rem;
+  overflow: hidden;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  position: relative;
+  width: 100%;
+}
+.scene-content,
+.scene-hue {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.scene-content {
+  align-items: center;
+  background: #3006;
+  color: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 4rem;
+}
+.scene-hue {
+  background: var(--color-text);
+  mix-blend-mode: color;
+}
