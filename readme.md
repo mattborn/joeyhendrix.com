@@ -9,4 +9,5 @@
 - [x] See how #2: Automation
 - [x] See how #3: Growth
 - [x] Make images sexier with a blend mode
+- [x] Add first testimonial
 - [ ] Embed Calendar event
