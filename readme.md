@@ -10,4 +10,5 @@
 - [x] See how #3: Growth
 - [x] Make images sexier with a blend mode
 - [x] Add first testimonial
+- [x] Add Open Graph tags
 - [ ] Embed Calendar event
