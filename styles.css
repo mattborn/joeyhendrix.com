@@ -13,6 +13,7 @@ body {
   background: var(--color-background);
   color: var(--color-text);
   font: 100%/1 'DM Sans', system-ui, sans-serif;
+  /* text-rendering: geometricPrecision; */
 }
 
 h1,
@@ -37,6 +38,12 @@ p {
   max-width: 30rem;
 }
 
+small {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .copy-2024 {
   font-size: 1.25rem;
 }
@@ -55,7 +62,7 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.5rem;
 }
 section {
   min-height: 65vh;
@@ -87,6 +94,11 @@ svg {
   padding: 1rem 1.5rem;
 }
 
+img {
+  border-radius: 1rem;
+  max-width: 100%;
+}
+
 /* services */
 
 .service-list {
@@ -101,10 +113,28 @@ svg {
   padding: 1rem 1.5rem;
 }
 
+/* see how */
+
+.see-how {
+  padding: 4rem 1.5rem;
+}
+
+.stack {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+img {
+  border: 2px solid var(--color-text);
+  box-shadow: 8px 8px var(--color-text);
+}
+
 /* scene */
 
 .scene {
-  background: url(https://picsum.photos/960/540) no-repeat center / cover;
+  /* background: url(https://picsum.photos/960/540) no-repeat center / cover; */
   border-radius: 1rem;
   overflow: hidden;
   padding-bottom: 177.78%; /* 9:16 aspect ratio */
@@ -112,7 +142,8 @@ svg {
   width: 100%;
 }
 .scene-content,
-.scene-hue {
+.scene-hue,
+.scene-video {
   bottom: 0;
   left: 0;
   position: absolute;
@@ -128,31 +159,73 @@ svg {
   gap: 1.5rem;
   justify-content: center;
   padding: 4rem;
+  z-index: 2;
 }
 .scene-hue {
   background: var(--color-text);
   mix-blend-mode: color;
+  z-index: 1;
+}
+.scene-video {
+  object-fit: cover;
+  object-position: center;
+  z-index: -1;
 }
 
 /* responsive */
 
-@media (min-width: 1024px) {
+@media (max-width: 480px) {
+  .scene-video {
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 480px) {
+  h1 {
+    font-size: 3.5rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+
+  .scene {
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  }
+  .scene-video {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
   /* desktop: */
 
   h1 {
     font-size: 6rem;
   }
   h2 {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 
   header,
   section,
   footer {
-    padding: 2rem;
+    padding: 3rem;
   }
 
-  .scene {
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  .see-how .center {
+    flex-direction: row;
+    gap: 4rem;
+  }
+  .see-how .stack {
+    flex: 1;
+  }
+  .stack {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .see-how:nth-child(even) .stack:first-child {
+    order: 1;
   }
 }
