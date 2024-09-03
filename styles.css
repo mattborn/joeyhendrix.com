@@ -63,6 +63,7 @@ small {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   text-align: center;
 }
 
@@ -98,6 +99,29 @@ svg {
 .svg-inline--fa {
   font-size: 2rem;
   margin: 3rem 0;
+}
+
+.hue {
+  background: var(--color-text);
+  mix-blend-mode: color;
+  opacity: 0.5;
+}
+
+/* hero */
+
+#glamour-shot {
+  background: url(https://res.cloudinary.com/moona/image/upload/v1725384592/JoeyHendrix/joey-sep3_arg7kj.jpg) no-repeat
+    center / cover;
+  border-radius: 0 50% 50% 0;
+  bottom: 50%;
+  height: 50vh;
+  left: 0;
+  mix-blend-mode: multiply;
+  opacity: 50%;
+  overflow: hidden;
+  position: fixed;
+  transform: translate(-5%, 50%);
+  width: 50vh;
 }
 
 /* components */
@@ -181,8 +205,8 @@ img {
   position: relative;
   width: 100%;
 }
+.hue,
 .scene-content,
-.scene-hue,
 .scene-video {
   bottom: 0;
   left: 0;
@@ -200,12 +224,6 @@ img {
   justify-content: center;
   padding: 4rem;
   z-index: 2;
-}
-.scene-hue {
-  background: var(--color-text);
-  display: none;
-  mix-blend-mode: color;
-  z-index: 1;
 }
 .scene-video {
   object-fit: cover;
