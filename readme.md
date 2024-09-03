@@ -11,4 +11,8 @@
 - [x] Make images sexier with a blend mode
 - [x] Add first testimonial
 - [x] Add Open Graph tags
-- [ ] Embed Calendar event
+- [x] Embed Calendar event
+- [x] Add photo
+- [x] Add Plausible
+- [x] Add Clarity
+- [x] Add Google Analytics
