@@ -158,6 +158,14 @@ img {
   letter-spacing: -0.03em;
 }
 
+/* calendar */
+
+.calendly-inline-widget {
+  height: 150vh;
+  mix-blend-mode: multiply;
+  width: 100%;
+}
+
 /* scene */
 
 .scene {
@@ -255,5 +263,9 @@ img {
   }
   .see-how:nth-child(even) .stack:first-child {
     order: 1;
+  }
+
+  .calendly-inline-widget {
+    height: 100vh;
   }
 }
