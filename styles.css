@@ -211,6 +211,7 @@ img {
 /* responsive */
 
 @media (max-width: 480px) {
+  /* isolate phone — 30rem */
   .scene-video {
     left: 50%;
     position: absolute;
@@ -219,6 +220,7 @@ img {
 }
 
 @media (min-width: 480px) {
+  /* phone — 30rem */
   h1 {
     font-size: 3.5rem;
   }
@@ -235,7 +237,7 @@ img {
 }
 
 @media (min-width: 768px) {
-  /* desktop: */
+  /* tablet — 48rem */
 
   h1 {
     font-size: 6rem;
@@ -264,6 +266,9 @@ img {
   .see-how:nth-child(even) .stack:first-child {
     order: 1;
   }
+}
+@media (min-width: 1120px) {
+  /* desktop — 70rem */
 
   .calendly-inline-widget {
     height: 100vh;
