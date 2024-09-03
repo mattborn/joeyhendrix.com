@@ -3,6 +3,7 @@
 /* colors */
 
 :root {
+  --color-accent: #e66;
   --color-background: #f2eed9;
   --color-text: #522;
 }
@@ -14,8 +15,6 @@
 /* typography */
 
 body {
-  background: var(--color-background);
-  color: var(--color-text);
   font: 100%/1 'DM Sans', system-ui, sans-serif;
   /* text-rendering: geometricPrecision; */
 }
@@ -27,15 +26,14 @@ p {
   margin: 0;
 }
 
-h1 {
+h1,
+h2 {
   font: 400 2.5rem/1 'Averia Serif Libre', Georgia, serif;
   letter-spacing: -0.05em;
 }
 
 h2 {
   font-size: 2rem;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
 }
 
 h3 {
@@ -91,6 +89,17 @@ section {
 }
 
 /* branding */
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+em,
+small,
+.svg-inline--fa {
+  color: var(--color-accent);
+}
 
 svg {
   fill: var(--color-text);
@@ -157,6 +166,9 @@ svg {
   color: var(--color-background);
   cursor: pointer;
   padding: 1rem 1.5rem;
+}
+.button:hover {
+  background: var(--color-accent);
 }
 
 img {
