@@ -6,6 +6,44 @@
   --color-accent: #e66;
   --color-background: #f2eed9;
   --color-text: #522;
+  --color-white: white;
+}
+
+@supports (color: color(display-p3 1 1 1)) {
+  /* or @media (color-gamut: p3) */
+  :root {
+    --color-accent: color(display-p3 0.9333 0.4 0.4);
+    --color-background: color(display-p3 0.95 0.9333 0.85);
+    --color-text: color(display-p3 0.3333 0.1333 0.1333);
+    --color-white: color(display-p3 1 1 1);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-accent: #e66;
+    --color-background: #522;
+    --color-text: #f2eed9;
+    --color-white: white;
+  }
+
+  @supports (color: color(display-p3 1 1 1)) {
+    :root {
+      --color-accent: color(display-p3 0.9333 0.4 0.4);
+      --color-background: color(display-p3 0.3333 0.1333 0.1333);
+      --color-text: color(display-p3 0.95 0.9333 0.85);
+      --color-white: color(display-p3 1 1 1);
+    }
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  /* blending modes only on light */
+  img,
+  #glamour-shot,
+  .calendly-inline-widget {
+    mix-blend-mode: multiply;
+  }
 }
 
 * {
@@ -55,6 +93,7 @@ small {
 
 .copy-2024 {
   font-size: 1.25rem;
+  max-width: 35rem;
 }
 
 /* layout */
@@ -118,45 +157,15 @@ svg {
 
 /* hero */
 
-.blur-horizon {
-  position: relative;
-  padding-bottom: 3rem;
-  width: 100%;
-}
-.blur-horizon::before {
-  -webkit-backdrop-filter: blur(1rem);
-  backdrop-filter: blur(1rem);
-  bottom: 0;
-  content: '';
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 70%;
-  z-index: 1;
-}
-
 #glamour-shot {
   background: url(https://res.cloudinary.com/moona/image/upload/v1725384592/JoeyHendrix/joey-sep3_arg7kj.jpg) no-repeat
     center / cover;
   border-radius: 50% 50% 0 0;
   height: 20rem;
-  mix-blend-mode: multiply;
   overflow: hidden;
   position: relative;
   width: 20rem;
 }
-/* #glamour-shot::before {
-  background: inherit;
-  bottom: 0;
-  content: '';
-  filter: blur(10px);
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 70%;
-  transform-origin: bottom;
-  transform: scaleY(-0.5) translateY(70%);
-} */
 
 /* components */
 
@@ -206,7 +215,6 @@ img {
 img {
   border: 2px solid var(--color-text);
   box-shadow: 8px 8px var(--color-text);
-  mix-blend-mode: multiply;
 }
 
 /* quote */
@@ -228,7 +236,6 @@ img {
 
 .calendly-inline-widget {
   height: 150vh;
-  mix-blend-mode: multiply;
   width: 100%;
 }
 
@@ -241,6 +248,9 @@ img {
   padding-bottom: 177.78%; /* 9:16 aspect ratio */
   position: relative;
   width: 100%;
+}
+.scene em {
+  color: var(--color-white);
 }
 .hue,
 .scene-content,
@@ -265,6 +275,7 @@ img {
 .scene-video {
   object-fit: cover;
   object-position: center;
+  pointer-events: none;
   z-index: -1;
 }
 
