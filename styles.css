@@ -76,7 +76,7 @@ footer {
   padding: 1.5rem;
 }
 section {
-  min-height: 65vh;
+  /* min-height: 65vh; */
 }
 
 .center {
@@ -93,6 +93,11 @@ section {
 
 svg {
   fill: var(--color-text);
+}
+
+.svg-inline--fa {
+  font-size: 2rem;
+  margin: 3rem 0;
 }
 
 /* components */
