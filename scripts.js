@@ -9,13 +9,3 @@ q('.button').forEach(el =>
     })
   }),
 )
-
-document.addEventListener('scroll', e => {
-  const scrollDepth = window.scrollY / window.innerHeight
-
-  let opacity
-  if (scrollDepth <= 0.5) opacity = 0.5 + scrollDepth
-  else opacity = 2 - (scrollDepth * 4) / 3
-
-  g('glamour-shot').style.opacity = Math.max(0, Math.min(1, opacity))
-})

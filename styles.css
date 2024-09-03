@@ -104,25 +104,50 @@ svg {
 .hue {
   background: var(--color-text);
   mix-blend-mode: color;
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 /* hero */
 
+.blur-horizon {
+  position: relative;
+  padding-bottom: 3rem;
+  width: 100%;
+}
+.blur-horizon::before {
+  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: blur(1rem);
+  bottom: 0;
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 70%;
+  z-index: 1;
+}
+
 #glamour-shot {
   background: url(https://res.cloudinary.com/moona/image/upload/v1725384592/JoeyHendrix/joey-sep3_arg7kj.jpg) no-repeat
     center / cover;
-  border-radius: 0 50% 50% 0;
-  bottom: 50%;
-  height: 50vh;
-  left: 0;
+  border-radius: 50% 50% 0 0;
+  height: 20rem;
   mix-blend-mode: multiply;
-  opacity: 50%;
   overflow: hidden;
-  position: fixed;
-  transform: translate(-5%, 50%);
-  width: 50vh;
+  position: relative;
+  width: 20rem;
 }
+/* #glamour-shot::before {
+  background: inherit;
+  bottom: 0;
+  content: '';
+  filter: blur(10px);
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 70%;
+  transform-origin: bottom;
+  transform: scaleY(-0.5) translateY(70%);
+} */
 
 /* components */
 
