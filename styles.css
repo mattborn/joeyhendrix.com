@@ -135,7 +135,12 @@ body {
   color: var(--color-text);
 }
 
-em,
+em {
+  color: var(--color-accent);
+  font-family: 'Averia Serif Libre', Georgia, serif;
+  font-style: italic;
+}
+
 small,
 .svg-inline--fa {
   color: var(--color-accent);
