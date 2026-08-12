@@ -1,0 +1,419 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Competitive Landscape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="styles.css" rel="stylesheet">
+
+<p class="eyebrow"><span>Competitive Landscape</span><span id="state"></span></p>
+
+<h1>Who you're up against.</h1>
+
+<form id="form">
+  <input id="domain" name="domain" placeholder="drivertechtools.com" required>
+  <button type="submit">Get free report</button>
+</form>
+
+<section id="dev" hidden>
+  <p class="eyebrow"><span>Past domains</span></p>
+  <ul id="runs"></ul>
+</section>
+
+<div id="report" hidden>
+  <section id="profile" hidden>
+    <img id="logo" hidden alt="">
+    <h2 id="company"></h2>
+    <dl id="facts"></dl>
+  </section>
+
+  <section>
+    <p class="eyebrow"><span>Competitive set</span></p>
+    <div class="scroll">
+      <table>
+        <thead><tr id="setcolumns"></tr></thead>
+        <tbody id="setrows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow"><span>Revenue vs. traffic</span></p>
+    <div id="chart"></div>
+  </section>
+
+  <div id="split">
+    <section>
+      <p class="eyebrow"><span>Monthly web traffic</span></p>
+      <div id="traffic"></div>
+    </section>
+    <section>
+      <p class="eyebrow"><span>Technologies detected</span></p>
+      <div id="tech"></div>
+    </section>
+  </div>
+
+  <section>
+    <p class="eyebrow"><span>Paid ad activity</span></p>
+    <div class="scroll">
+      <table>
+        <thead><tr id="adcolumns"></tr></thead>
+        <tbody id="adrows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p id="pending"></p>
+</div>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'
+  import { get, getDatabase, onValue, ref } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js'
+
+  const API_URL = 'https://us-central1-samantha-374622.cloudfunctions.net/clay'
+  const CLAY_WEBHOOK = 'https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-ba660649-ebd6-4d39-bb6f-3f06c3dcfd0c'
+  const DATABASE = 'https://fruitsuit-competition-default-rtdb.firebaseio.com'
+
+  const db = getDatabase(initializeApp({ databaseURL: DATABASE }))
+
+  const clean = value => value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '')
+
+  const label = (value, fallback) => ((value.name || value.companyUrl || fallback) + '').split(' | ')[0]
+
+  const COLUMNS = [
+    { key: 'employeeCount', label: 'Employees', numeric: true },
+    { compact: true, key: 'companyRevenue', label: 'Revenue', money: true, numeric: true },
+    { compact: true, key: 'totalFunding', label: 'Funding', money: true, numeric: true },
+    { compact: true, key: 'siteTraffic', label: 'Traffic', numeric: true },
+    { key: 'jobOpeningsCount', label: 'Open jobs', numeric: true },
+    { key: 'rating', label: 'Rating', numeric: true },
+    { key: 'reviews', label: 'Reviews', numeric: true },
+    { key: 'founded', label: 'Founded' },
+    { key: 'locality', label: 'HQ' },
+  ]
+
+  const BARS = [
+    { key: 'siteTraffic', label: 'Monthly web traffic', target: traffic },
+    { key: 'technologyCount', label: 'Technologies detected', target: tech },
+  ]
+
+  const FACTS = [
+    { key: 'locality', label: 'Headquarters' },
+    { key: 'founded', label: 'Founded' },
+    { key: 'employeeCount', label: 'Employees', numeric: true },
+    { compact: true, key: 'companyRevenue', label: 'Revenue', money: true, numeric: true },
+    { compact: true, key: 'totalFunding', label: 'Total funding', money: true, numeric: true },
+    { compact: true, key: 'siteTraffic', label: 'Monthly traffic', numeric: true },
+  ]
+
+  const CHANNELS = [
+    { key: 'googleAds', label: 'Google' },
+    { key: 'metaAds', label: 'Meta' },
+    { key: 'linkedinAds', label: 'LinkedIn' },
+  ]
+
+  const EXPECTED = 5
+
+  const [STAFF, REVENUE, TRAFFIC] = ['employeeCount', 'companyRevenue', 'siteTraffic']
+
+  const field = (data, key) => (data[key] === '' ? undefined : data[key])
+
+  const format = (value, column) => {
+    if (!column.numeric) return value
+    const number = Number(value)
+    return Number.isNaN(number) ? undefined : (column.money ? '$' : '') + (column.compact ? number.toLocaleString('en', { maximumFractionDigits: 1, notation: 'compact' }) : number.toLocaleString())
+  }
+
+  const amount = (row, key) => Number(field(row.data, key))
+
+  const compact = value => format(value, { compact: true, numeric: true })
+  const money = value => format(value, { compact: true, money: true, numeric: true })
+
+  const star = row => (row.self ? `${row.name} ★` : row.name)
+
+  const debug = (() => {
+    let started, tick = 0, previous = {}
+
+    return value => {
+      const now = Date.now()
+      const competitors = value?.competitors ?? {}
+      const profile = value?.profile ?? {}
+      const sizes = Object.fromEntries(Object.entries(competitors).filter(([, row]) => row && typeof row === 'object').map(([key, row]) => [key, Object.keys(row).length]))
+
+      started ??= now
+      console.log(
+        `%c[+${((now - started) / 1000).toFixed(1)}s] snapshot ${++tick} · ${Object.keys(sizes).length} competitors · profile ${Object.keys(profile).length} fields`,
+        'color:#22d3a0',
+        {
+          added: Object.keys(sizes).filter(key => previous[key] === undefined),
+          grew: Object.keys(sizes).filter(key => previous[key] !== undefined && previous[key] !== sizes[key]),
+          fieldsPerCompetitor: sizes,
+          profileFields: Object.keys(profile),
+        },
+      )
+      previous = sizes
+    }
+  })()
+
+  const cell = (line, tag, content, numeric) => {
+    const element = line.appendChild(document.createElement(tag))
+    if (numeric) element.className = 'number'
+    element.textContent = content ?? '—'
+    return element
+  }
+
+  const fillTable = (head, body, rows, columns) => {
+    head.replaceChildren()
+    body.replaceChildren()
+
+    cell(head, 'th', 'Company')
+    columns.forEach(column => cell(head, 'th', column.label, column.numeric))
+
+    rows.forEach(row => {
+      const line = body.appendChild(document.createElement('tr'))
+      const shim = element => (row.skeleton ? (element.appendChild(document.createElement('span')).className = 'shimmer') : null)
+
+      if (row.self) line.className = 'self'
+      shim(cell(line, 'td', row.skeleton ? '' : star(row)))
+      columns.forEach(column => {
+        const value = row.skeleton ? undefined : field(row.data, column.key)
+        shim(cell(line, 'td', row.skeleton ? '' : value === undefined ? undefined : format(value, column), column.numeric))
+      })
+    })
+  }
+
+  const fillBars = (rows, column) => {
+    const values = rows.map(row => ({ row, value: amount(row, column.key) })).filter(item => item.value > 0).sort((a, b) => b.value - a.value)
+
+    column.target.replaceChildren()
+    if (values.length < 2) return !(column.target.className = 'placeholder bars-tall')
+
+    column.target.className = 'bars'
+    values.forEach(({ row, value }) => {
+      const line = column.target.appendChild(document.createElement('div'))
+      const name = line.appendChild(document.createElement('span'))
+      const track = line.appendChild(document.createElement('span'))
+      const fill = track.appendChild(document.createElement('span'))
+      const total = line.appendChild(document.createElement('span'))
+
+      line.className = row.self ? 'bar self' : 'bar'
+      name.className = 'bar-label'
+      name.textContent = star(row)
+      track.className = 'bar-track'
+      fill.className = 'bar-fill'
+      fill.style.width = `${(value / values[0].value) * 100}%`
+      total.className = 'bar-value number'
+      total.textContent = compact(value)
+    })
+
+    return true
+  }
+
+  const svg = (tag, attributes) => {
+    const element = document.createElementNS('http://www.w3.org/2000/svg', tag)
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value))
+    return element
+  }
+
+  const text = (className, x, y, content, anchor) => {
+    const element = svg('text', { class: className, x, y })
+    if (anchor) element.setAttribute('text-anchor', anchor)
+    element.textContent = content
+    return element
+  }
+
+  const fillChart = rows => {
+    const points = rows.map(row => ({ row, size: amount(row, STAFF) || 0, x: amount(row, REVENUE), y: amount(row, TRAFFIC) })).filter(point => point.x > 0 && point.y > 0)
+
+    chart.replaceChildren()
+    if (points.length < 3) return !(chart.className = 'placeholder chart-tall')
+
+    const [width, height, left, bottom, top, right] = [800, 440, 30, 44, 24, 24]
+    const span = key => [Math.floor(Math.min(...points.map(point => Math.log10(point[key])))), Math.ceil(Math.max(...points.map(point => Math.log10(point[key]))))]
+    const [x0, x1] = span('x')
+    const [y0, y1] = span('y')
+    const largest = Math.max(...points.map(point => point.size), 1)
+    const px = value => left + ((Math.log10(value) - x0) / (x1 - x0 || 1)) * (width - left - right)
+    const py = value => height - bottom - ((Math.log10(value) - y0) / (y1 - y0 || 1)) * (height - bottom - top)
+    const element = svg('svg', { id: 'scatter', viewBox: `0 0 ${width} ${height}` })
+
+    chart.className = ''
+
+    for (let tick = x0; tick <= x1; tick++) {
+      element.append(svg('line', { class: 'grid', x1: px(10 ** tick), x2: px(10 ** tick), y1: top, y2: height - bottom }))
+      element.append(text('tick', px(10 ** tick), height - bottom + 16, money(10 ** tick), 'middle'))
+    }
+
+    for (let tick = y0; tick <= y1; tick++) {
+      element.append(svg('line', { class: 'grid', x1: left, x2: width - right, y1: py(10 ** tick), y2: py(10 ** tick) }))
+      element.append(text('tick', left, py(10 ** tick) - 4, compact(10 ** tick)))
+    }
+
+    points
+      .sort((a, b) => b.size - a.size)
+      .forEach(point => {
+        const radius = 5 + Math.sqrt(point.size / largest) * 22
+        const name = star(point.row)
+        const flip = px(point.x) + radius + 5 + name.length * 5.4 > width - right
+
+        element.append(svg('circle', { class: point.row.self ? 'dot self' : 'dot', cx: px(point.x), cy: py(point.y), r: radius }))
+        element.append(text(point.row.self ? 'point self' : 'point', px(point.x) + (flip ? -radius - 5 : radius + 5), py(point.y) + 3, name, flip ? 'end' : 'start'))
+      })
+
+    chart.append(element)
+    return true
+  }
+
+  const fillProfile = (title, data) => {
+    const source = field(data, 'logoUrl')
+
+    profile.hidden = false
+    company.textContent = title
+    company.hidden = !!source
+    logo.hidden = !source
+    if (source) {
+      logo.alt = title
+      logo.src = source
+      logo.onerror = () => ((logo.hidden = true), (company.hidden = false))
+    }
+
+    facts.replaceChildren()
+    FACTS.forEach(fact => {
+      const value = field(data, fact.key)
+      if (value === undefined) return
+
+      const group = facts.appendChild(document.createElement('div'))
+      const term = group.appendChild(document.createElement('dt'))
+      const description = group.appendChild(document.createElement('dd'))
+
+      term.textContent = fact.label
+      description.textContent = format(value, fact) ?? value
+    })
+  }
+
+  const listen = id => {
+    const started = Date.now()
+    const clock = () => {
+      const seconds = Math.round((Date.now() - started) / 1000)
+      return `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, '0')}s`
+    }
+
+    let frame
+    let phase = () => `Starting · ${clock()}`
+    const ticker = setInterval(() => (state.textContent = phase()), 1000)
+
+    const render = data => {
+      const { competitor_names = [], competitors: raw = {}, profile: own } = data ?? {}
+      const competitors = Object.fromEntries(Object.entries(raw).filter(([, value]) => value && typeof value === 'object'))
+      const self = own && label(own, id)
+      const declared = Object.values(competitor_names).length || Number(own?.competitor_count) || 0
+      const found = Object.keys(competitors).length
+      const expected = declared || EXPECTED
+      const settled = declared > 0 && found >= declared
+      const filled = Object.values(competitors).reduce((total, row) => total + Object.keys(row).length, 0)
+
+      phase = settled
+        ? () => `Found ${found} competitors`
+        : found
+          ? () => `Enriching ${found} competitors · ${filled} fields · ${clock()}`
+          : own
+            ? () => `Finding competitors · ${clock()}`
+            : () => `Building profile · ${clock()}`
+
+      if (settled) clearInterval(ticker)
+      state.textContent = phase()
+
+      const rows = [
+        ...new Map([
+          ...Object.values(competitor_names).map(value => [value, { data: {}, name: value }]),
+          ...Object.entries(competitors).map(([key, value]) => [label(value, key), { data: value, name: label(value, key) }]),
+          ...(own ? [[self, { data: own, name: self, self: true }]] : []),
+        ]).values(),
+      ]
+      const columns = COLUMNS.filter(column => rows.some(row => field(row.data, column.key) !== undefined))
+      const sort = columns.find(column => column.numeric)
+      const value = row => (sort ? Number(field(row.data, sort.key)) : NaN)
+
+      rows.sort((a, b) => (sort ? (value(b) || -Infinity) - (value(a) || -Infinity) : 0) || a.name.localeCompare(b.name))
+      while (rows.filter(row => !row.self).length < expected) rows.push({ data: {}, name: '', skeleton: true })
+
+      if (own) fillProfile(self, own)
+      fillTable(setcolumns, setrows, rows, columns)
+      fillTable(adcolumns, adrows, rows, CHANNELS.filter(channel => rows.some(row => field(row.data, channel.key) !== undefined)).map(channel => ({ ...channel, numeric: true })))
+
+      const missing = [!fillChart(rows) && 'Revenue vs. traffic', ...BARS.filter(column => !fillBars(rows, column)).map(column => column.label)].filter(Boolean)
+
+      pending.textContent = missing.length ? `${settled ? 'No data for' : 'Still waiting on data for'} ${missing.join(', ')}` : ''
+      pending.hidden = !missing.length
+      report.hidden = false
+    }
+
+    form.hidden = true
+
+    return onValue(ref(db, `reports/${id}`), snapshot => {
+      debug(snapshot.val())
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => render(snapshot.val()))
+    })
+  }
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault()
+
+    const value = clean(domain.value)
+    if (!value.includes('.')) return (state.textContent = 'Enter a domain')
+
+    const id = value.replace(/\./g, '_')
+    const button = form.querySelector('button')
+
+    history.replaceState(null, '', `?domain=${value}${location.search.includes('dev=1') ? '&dev=1' : ''}`)
+    button.disabled = true
+    state.textContent = `Checking ${value}`
+
+    if ((await get(ref(db, `reports/${id}`))).exists()) {
+      button.disabled = false
+      return listen(id)
+    }
+
+    state.textContent = `Sending to Clay`
+
+    const response = await fetch(API_URL, {
+      body: JSON.stringify({ domain: value, unique_id: id, webhook: CLAY_WEBHOOK }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+
+    button.disabled = false
+    if (!response.ok) return (state.textContent = `Clay rejected it (${response.status})`)
+
+    listen(id)
+  })
+
+  const params = new URLSearchParams(location.search)
+  const preset = params.get('domain')
+
+  if (params.get('dev')) {
+    dev.hidden = false
+    fetch(`${DATABASE}/reports.json?shallow=true`)
+      .then(response => response.json())
+      .then(value =>
+        Object.keys(value ?? {})
+          .filter(key => key.includes('_'))
+          .sort()
+          .forEach(key => {
+            const item = runs.appendChild(document.createElement('li'))
+            const link = item.appendChild(document.createElement('a'))
+
+            link.href = `?domain=${key.replace(/_/g, '.')}&dev=1`
+            link.textContent = key.replace(/_/g, '.')
+          }),
+      )
+      .catch(error => console.error(error))
+  }
+
+  if (preset) {
+    domain.value = clean(preset)
+    listen(clean(preset).replace(/\./g, '_'))
+  }
+</script>
